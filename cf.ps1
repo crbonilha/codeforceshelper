@@ -125,12 +125,18 @@ if ($null -ne $problem) {
         Get-Content ./$round/io/$problem.$sample_index.in | `
         & ./$round/$problem.exe > ./$round/io/$problem.$sample_index.out
 
-        $diff = Compare-Object `
-        -ReferenceObject (Get-Content -Path ./$round/io/$problem.$sample_index.sol) `
-        -DifferenceObject (Get-Content -Path ./$round/io/$problem.$sample_index.out) `
-        -CaseSensitive
+        $out = Get-Content -Path ./$round/io/$problem.$sample_index.out
+        $diff = $null
+        if ($null -ne $out) {
+            $diff = Compare-Object `
+            -ReferenceObject (Get-Content -Path ./$round/io/$problem.$sample_index.sol) `
+            -DifferenceObject $out `
+            -CaseSensitive
+        }
 
-        if ($null -eq $diff) {
+        if ($null -eq $out) {
+            Write-Host "Solution didn't print." -ForegroundColor "Red"
+        } elseif ($null -eq $diff) {
             Write-Host "Passed." -ForegroundColor "Green"
         } else {
             Write-Host "Not passed." -ForegroundColor "Red"
