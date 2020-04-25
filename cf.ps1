@@ -105,7 +105,7 @@ if ($null -ne $problem) {
 
     # compiling solution
     Write-Host "Compiling $problem.cpp."
-    g++ ./$round/$problem.cpp -o ./$round/$problem.exe
+    g++ -std=c++11 -Wall -Wextra -Wshadow -O2 -DLOCAL ./$round/$problem.cpp -o ./$round/$problem.exe
 
     # running against the input files
     for ($sample_index = 0; ; $sample_index++) {
@@ -121,9 +121,19 @@ if ($null -ne $problem) {
         }
         Clear-Content ./$round/io/$problem.$sample_index.out
 
+        if (!(Test-Path ./$round/io/$problem.$sample_index.err)) {
+            $x = New-Item -Path ./$round/io `
+            -Name "$problem.$sample_index.err" `
+            -ItemType "file"
+            $x = $x
+        }
+        Clear-Content ./$round/io/$problem.$sample_index.err
+
         Write-Host "Running test case $sample_index. " -NoNewline
         Get-Content ./$round/io/$problem.$sample_index.in | `
-        & ./$round/$problem.exe > ./$round/io/$problem.$sample_index.out
+        & ./$round/$problem.exe `
+        1> ./$round/io/$problem.$sample_index.out `
+        2> ./$round/io/$problem.$sample_index.err
 
         $out = Get-Content -Path ./$round/io/$problem.$sample_index.out
         $diff = $null
